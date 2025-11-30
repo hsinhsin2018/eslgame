@@ -177,7 +177,16 @@
             nose: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-orange-400 doodle-svg"><path d="M40,20 Q40,60 20,70 Q50,90 80,70 Q60,60 60,60" fill="none" /><circle cx="35" cy="70" r="2" fill="currentColor" class="text-orange-300" stroke="none" /></svg>`,
             joke: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-purple-400 doodle-svg"><path d="M20,20 Q80,20 80,50 Q80,80 50,80 L30,90 L35,75 Q20,70 20,50 Z" /><text x="32" y="58" font-family="Fredoka" font-size="28" stroke="none" fill="currentColor" class="text-purple-400 font-bold">Ha!</text></svg>`,
             
-            // Unit 2 - Colors
+            // Unit 2 - Colors & Emotions
+            face_base: `<circle cx="50" cy="50" r="45" fill="currentColor" stroke="#333" stroke-width="3" />`,
+            happy: `<path d="M30,40 Q35,30 40,40 M60,40 Q65,30 70,40 M30,60 Q50,80 70,60" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+            sad: `<path d="M30,40 Q35,30 40,40 M60,40 Q65,30 70,40 M30,75 Q50,55 70,75" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+            angry: `<path d="M25,35 L45,45 M75,35 L55,45 M35,70 L65,70" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/> <circle cx="35" cy="50" r="3" fill="#333"/><circle cx="65" cy="50" r="3" fill="#333"/>`,
+            scared: `<circle cx="35" cy="45" r="5" fill="#333"/><circle cx="65" cy="45" r="5" fill="#333"/><ellipse cx="50" cy="70" rx="10" ry="15" fill="none" stroke="#333" stroke-width="3"/> <path d="M30,25 Q35,20 40,25 M60,25 Q65,20 70,25" stroke="#333" stroke-width="2" fill="none"/>`,
+            sleepy: `<path d="M30,45 L45,45 M60,45 L75,45" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M55,65 Q60,70 65,65" stroke="#333" stroke-width="3" fill="none"/><text x="70" y="30" font-family="sans-serif" font-size="20" fill="#333">Z</text>`,
+            disgusted: `<path d="M30,40 Q35,45 40,40 M60,40 Q65,45 70,40 M30,65 Q40,60 50,65 Q60,70 70,65" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M45,70 L50,85 L55,70" fill="pink" stroke="#333" stroke-width="2"/>`,
+            
+            // Blobs for Colors
             blob: `<path d="M40.2,-46.3C52.7,-38.2,63.9,-27.1,68.6,-13.6C73.2,-0.1,71.3,15.8,63.4,28.8C55.5,41.8,41.6,51.9,27.1,58.3C12.6,64.7,-2.5,67.4,-16.9,64.2C-31.3,61,-45,51.9,-54.8,39.3C-64.6,26.7,-70.5,10.6,-68.6,-4.2C-66.7,-19,-56.9,-32.5,-45.5,-40.8C-34.1,-49.1,-21.1,-52.2,-7.4,-51.3C6.3,-50.4,19,-45.5,40.2,-46.3Z" transform="translate(50 50) scale(0.6)" stroke="#333" stroke-width="2" fill="currentColor"/>`
         };
 
@@ -221,13 +230,13 @@
                 id: 'unit2',
                 title: "Feelings & Colors",
                 vocab: [
-                    // Emotions - Using new images
-                    { word: 'happy',     type:'emotion', img: 'happy.jpg',     color: 'bg-yellow-50', text: 'text-yellow-600', translation: '快樂' },
-                    { word: 'scared',    type:'emotion', img: 'scared.jpg',    color: 'bg-purple-50', text: 'text-purple-500', translation: '害怕' },
-                    { word: 'angry',     type:'emotion', img: 'angry.jpg',     color: 'bg-red-50',    text: 'text-red-500',    translation: '生氣' },
-                    { word: 'sleepy',    type:'emotion', img: 'sleepy.jpg',    color: 'bg-blue-50',   text: 'text-blue-400',   translation: '想睡' },
-                    { word: 'disgusted', type:'emotion', img: 'disgusted.jpg', color: 'bg-green-50',  text: 'text-green-600',  translation: '噁心' },
-                    { word: 'sad',       type:'emotion', img: 'sad.jpg',       color: 'bg-blue-50',   text: 'text-blue-600',   translation: '難過' },
+                    // Emotions
+                    { word: 'happy',     type:'emotion', img: 'happy.png', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-yellow-300">${svgs.face_base}${svgs.happy}</svg>`, color: 'bg-yellow-50', text: 'text-yellow-600', translation: '快樂' },
+                    { word: 'scared',    type:'emotion', img: 'scared.png', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-purple-300">${svgs.face_base}${svgs.scared}</svg>`, color: 'bg-purple-50', text: 'text-purple-500', translation: '害怕' },
+                    { word: 'angry',     type:'emotion', img: 'angry.png', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-red-400">${svgs.face_base}${svgs.angry}</svg>`, color: 'bg-red-50', text: 'text-red-500', translation: '生氣' },
+                    { word: 'sleepy',    type:'emotion', img: 'sleepy.png', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-blue-200">${svgs.face_base}${svgs.sleepy}</svg>`, color: 'bg-blue-50', text: 'text-blue-400', translation: '想睡' },
+                    { word: 'disgusted', type:'emotion', img: 'disgusted.png', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-green-300">${svgs.face_base}${svgs.disgusted}</svg>`, color: 'bg-green-50', text: 'text-green-600', translation: '噁心' },
+                    { word: 'sad',       type:'emotion', img: 'sad.png', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-blue-400">${svgs.face_base}${svgs.sad}</svg>`, color: 'bg-blue-50', text: 'text-blue-600', translation: '難過' },
                     // Colors
                     { word: 'red',    type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-red-500">${svgs.blob}</svg>`, color: 'bg-red-100', text: 'text-red-600', translation: '紅色' },
                     { word: 'blue',   type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-blue-500">${svgs.blob}</svg>`, color: 'bg-blue-100', text: 'text-blue-600', translation: '藍色' },
@@ -236,7 +245,7 @@
                     { word: 'yellow', type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-yellow-400">${svgs.blob}</svg>`, color: 'bg-yellow-100', text: 'text-yellow-600', translation: '黃色' },
                     { word: 'black',  type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-gray-800">${svgs.blob}</svg>`, color: 'bg-gray-200', text: 'text-gray-800', translation: '黑色' }
                 ],
-                storyType: 'text',
+                storyType: 'text', // Changed from 'video' to 'text'
                 story: [
                     { text: "If you're happy happy happy clap your hands.", highlight: ["happy"] },
                     { text: "If you're happy happy happy clap your hands.", highlight: ["happy"] },
@@ -325,6 +334,7 @@
             // Update Nav Labels/Icons based on Unit
             const unit = units[unitId];
             
+            // Story is always text now (or lyrics)
             document.getElementById('label-story').innerText = unitId === 'unit2' ? "兒歌歌詞" : "故事";
             document.getElementById('icon-story').innerHTML = unitId === 'unit2' ? '<i class="fa-solid fa-music"></i>' : '<i class="fa-solid fa-book-open-reader"></i>';
 
@@ -359,7 +369,7 @@
             const unit = units[state.currentUnitId];
 
             if (tab === 'vocab') renderVocab(container, unit);
-            if (tab === 'story') renderStoryText(container, unit); 
+            if (tab === 'story') renderStoryText(container, unit); // Always text renderer now
             if (tab === 'extra') {
                 if(unit.extraType === 'sentences') renderSentences(container, unit);
                 else renderPhonics(container, unit);
@@ -434,28 +444,41 @@
 
         // --- View: Phonics (Unit 1) ---
         function renderPhonics(container, unit) {
+            // ... (Same as before code for Phonics) ...
             if(state.currentPhonicsMode === 'teach') {
+                // Modified to make word cards bigger and easier to tap
                 container.innerHTML = `
                     <div class="max-w-md mx-auto pt-2">
                         <h2 class="text-2xl font-bold text-cute-text text-center mb-4">自然發音</h2>
+                        
                         <div class="bg-white p-6 rounded-3xl mb-6 shadow-sm border-l-8 border-cute-pink">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="font-bold text-pink-500 text-xl">Short i (短音)</h3>
                                 <button onclick="speak('miss, is, kid', 'en-US')" class="w-10 h-10 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center btn-press"><i class="fa-solid fa-volume-high"></i></button>
                             </div>
                             <div class="flex flex-wrap gap-3">
-                                ${unit.phonics.shortI.map(w => `<button onclick="speak('${w}')" class="px-5 py-3 bg-pink-50 text-pink-600 rounded-2xl font-bold text-xl shadow-sm active:scale-95 transition-transform border-2 border-transparent hover:border-pink-200 flex-grow text-center">${w}</button>`).join('')}
+                                ${unit.phonics.shortI.map(w => `
+                                    <button onclick="speak('${w}')" class="px-5 py-3 bg-pink-50 text-pink-600 rounded-2xl font-bold text-xl shadow-sm active:scale-95 transition-transform border-2 border-transparent hover:border-pink-200 flex-grow text-center">
+                                        ${w}
+                                    </button>
+                                `).join('')}
                             </div>
                         </div>
+
                         <div class="bg-white p-6 rounded-3xl mb-6 shadow-sm border-l-8 border-cute-blue">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="font-bold text-blue-500 text-xl">Long o (長音)</h3>
                                 <button onclick="speak('rose, bone, nose', 'en-US')" class="w-10 h-10 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center btn-press"><i class="fa-solid fa-volume-high"></i></button>
                             </div>
                             <div class="flex flex-wrap gap-3">
-                                ${unit.phonics.longO.map(w => `<button onclick="speak('${w}')" class="px-5 py-3 bg-blue-50 text-blue-600 rounded-2xl font-bold text-xl shadow-sm active:scale-95 transition-transform border-2 border-transparent hover:border-blue-200 flex-grow text-center">${w}</button>`).join('')}
+                                ${unit.phonics.longO.map(w => `
+                                    <button onclick="speak('${w}')" class="px-5 py-3 bg-blue-50 text-blue-600 rounded-2xl font-bold text-xl shadow-sm active:scale-95 transition-transform border-2 border-transparent hover:border-blue-200 flex-grow text-center">
+                                        ${w}
+                                    </button>
+                                `).join('')}
                             </div>
                         </div>
+
                         <button onclick="state.currentPhonicsMode='sortGame'; switchTab('extra')" class="w-full bg-cute-yellow text-yellow-800 font-bold py-4 rounded-2xl shadow-cute btn-press text-xl flex items-center justify-center gap-2 mt-4">
                             <i class="fa-solid fa-gamepad"></i> 玩分類遊戲
                         </button>
@@ -468,6 +491,7 @@
         
         // --- View: Sentences (Unit 2) ---
         function renderSentences(container, unit) {
+            // ... (Random generation logic remains same) ...
             const subjects = ['you', 'he', 'she'];
             const subject = subjects[Math.floor(Math.random() * subjects.length)];
             const verb = subject === 'you' ? 'Are' : 'Is';
@@ -487,39 +511,59 @@
                 if (qEmotion === targetEmotion && qColor === targetColor) qColor = colors.find(c => c.word !== targetColor.word) || colors[0];
             }
 
+            const colorMap = { red: 'text-red-400', blue: 'text-blue-400', green: 'text-green-400', pink: 'text-pink-400', yellow: 'text-yellow-400', black: 'text-gray-700' };
+            const borderMap = { red: 'border-red-400', blue: 'border-blue-400', green: 'border-green-400', pink: 'border-pink-400', yellow: 'border-yellow-400', black: 'border-gray-800' };
+            
+            let faceColorClass = colorMap[targetColor.word];
+            let borderColorClass = borderMap[targetColor.word];
+            
+            // Generate Face HTML (Image with Border OR SVG)
+            const featurePath = svgs[targetEmotion.word]; 
+            // Fallback SVG logic inside
+            const svgHtml = `<svg viewBox="0 0 100 100" class="w-full h-full ${faceColorClass} fill-current">${svgs.face_base}</svg><svg viewBox="0 0 100 100" class="w-full h-full absolute top-0 left-0 text-gray-800 fill-current">${featurePath}</svg>`;
+            
+            let faceHtml;
+            if (targetEmotion.img) {
+                // Image with thick colored border to represent color
+                faceHtml = `
+                    <div class="w-40 h-40 rounded-full border-8 ${borderColorClass} overflow-hidden shadow-lg bg-white relative">
+                        <img src="${targetEmotion.img}" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <div class="hidden w-full h-full absolute inset-0">${svgHtml}</div>
+                    </div>
+                `;
+            } else {
+                faceHtml = `<div class="relative w-40 h-40">${svgHtml}</div>`;
+            }
+
             const yesText = subject === 'you' ? 'I am' : subject + ' is';
-            const noText = subject === 'you' ? "I am not" : subject + " isn't";
+            const noText = subject === 'you' ? "I'm not" : subject + " isn't";
 
             container.innerHTML = `
                 <div class="h-full flex flex-col items-center pt-4 px-4 text-center">
-                    <h2 class="text-xl font-bold text-cute-text mb-4">句型練習 (Q&A)</h2>
-                    <div class="w-40 h-40 mb-4 animate-float p-2 bg-white rounded-full shadow-sm">
-                        ${getMediaHtml(targetEmotion)}
-                    </div>
-                    <!-- Question Card with dynamic background color -->
-                    <div class="${qColor.color} p-6 rounded-3xl shadow-sm w-full mb-6 border-4 border-white">
-                        <p class="text-2xl font-bold text-gray-700 mb-2">
-                            ${verb} ${subject} <span class="text-pink-500">${qEmotion.word}</span> and <span class="${qColor.text}">${qColor.word}</span>?
-                        </p>
-                        <button onclick="speak('${verb} ${subject} ${qEmotion.word} and ${qColor.word}?')" class="text-gray-500 font-bold text-sm bg-white/50 px-3 py-1 rounded-full"><i class="fa-solid fa-volume-high mr-1"></i> 聽題目</button>
+                    <h2 class="text-xl font-bold text-cute-text mb-6">句型練習 (Q&A)</h2>
+                    <div class="mb-6 animate-float">${faceHtml}</div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm w-full mb-6">
+                        <p class="text-xl font-bold text-gray-700 mb-2">${verb} ${subject} <span class="text-pink-500">${qEmotion.word}</span> and <span class="text-blue-500">${qColor.word}</span>?</p>
+                        <button onclick="speak('${verb} ${subject} ${qEmotion.word} and ${qColor.word}?')" class="text-gray-400 text-sm"><i class="fa-solid fa-volume-high"></i> 聽題目</button>
                     </div>
 
-                    <!-- Answer Buttons (stacked layout, bigger font, TTS) -->
-                    <div class="flex flex-col gap-4 w-full max-w-sm">
+                    <div class="grid grid-cols-2 gap-4 w-full">
                         <!-- Yes Card -->
-                        <button onclick="checkSentence(true, ${match}, 'Yes, ${yesText}.')" class="bg-white rounded-3xl shadow-card p-4 flex items-center justify-start border-4 border-transparent hover:border-green-300 transition-all cursor-pointer btn-press group px-6 gap-4">
-                            <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-2xl text-green-500 flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <button onclick="checkSentence(true, ${match})" class="bg-white rounded-3xl shadow-card p-4 flex flex-col items-center justify-center border-4 border-transparent hover:border-green-300 transition-all cursor-pointer btn-press group">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-3xl text-green-500 mb-2 group-hover:scale-110 transition-transform">
                                 <i class="fa-solid fa-check"></i>
                             </div>
-                            <span class="text-2xl font-bold text-green-600 text-left">Yes, ${yesText}.</span>
+                            <span class="text-lg font-bold text-green-600">Yes</span>
+                            <span class="text-xs text-gray-400 font-bold">${yesText}</span>
                         </button>
 
                         <!-- No Card -->
-                        <button onclick="checkSentence(false, ${match}, 'No, ${noText}.')" class="bg-white rounded-3xl shadow-card p-4 flex items-center justify-start border-4 border-transparent hover:border-red-300 transition-all cursor-pointer btn-press group px-6 gap-4">
-                            <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center text-2xl text-red-500 flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <button onclick="checkSentence(false, ${match})" class="bg-white rounded-3xl shadow-card p-4 flex flex-col items-center justify-center border-4 border-transparent hover:border-red-300 transition-all cursor-pointer btn-press group">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-3xl text-red-500 mb-2 group-hover:scale-110 transition-transform">
                                 <i class="fa-solid fa-xmark"></i>
                             </div>
-                            <span class="text-2xl font-bold text-red-600 text-left">No, ${noText}.</span>
+                            <span class="text-lg font-bold text-red-600">No</span>
+                            <span class="text-xs text-gray-400 font-bold">${noText}</span>
                         </button>
                     </div>
                     <div id="sentence-feedback" class="mt-4 h-8 font-bold text-lg"></div>
@@ -527,14 +571,14 @@
             `;
         }
 
-        function checkSentence(userYes, isYes, answerText) {
+        function checkSentence(userYes, isYes) {
             const feedback = document.getElementById('sentence-feedback');
             if (userYes === isYes) {
                 feedback.innerText = "Correct! 答對了！";
                 feedback.className = "mt-4 h-8 font-bold text-lg text-green-500 animate-pop";
                 saveStars(1);
-                speak(answerText);
-                setTimeout(() => renderSentences(document.getElementById('app-content'), units[state.currentUnitId]), 2500);
+                speak("Correct!");
+                setTimeout(() => renderSentences(document.getElementById('app-content'), units[state.currentUnitId]), 1500);
             } else {
                 feedback.innerText = "Try again! 再試一次！";
                 feedback.className = "mt-4 h-8 font-bold text-lg text-red-500 animate-shake";
@@ -761,11 +805,17 @@
             renderSpellingGame(document.getElementById('app-content'), units[state.currentUnitId]);
         }
 
+        // Initialize (Phonics Game needs to be defined in scope of unit1 or general?)
+        // The Phonics Sorting game is specific to Unit 1 data structure. 
+        // I kept it simple above but need to define renderPhonicsGame if in unit1 context.
+        // It is defined in global scope above.
+
         let currentSortWord, currentSortType, currentSortVowel;
         function renderPhonicsGame(container, unit) {
+            // unit not used directly as data is hardcoded for phonics right now, but good practice
             const useShortI = Math.random() > 0.5;
-            if (useShortI) { currentSortType = 'short'; currentSortVowel = 'i'; currentSortWord = unit.phonics.shortI[Math.floor(Math.random()*unit.phonics.shortI.length)]; } 
-            else { currentSortType = 'long'; currentSortVowel = 'o'; currentSortWord = unit.phonics.longO[Math.floor(Math.random()*unit.phonics.longO.length)]; }
+            if (useShortI) { currentSortType = 'short'; currentSortVowel = 'i'; currentSortWord = phonicsData.shortI[Math.floor(Math.random()*phonicsData.shortI.length)]; } 
+            else { currentSortType = 'long'; currentSortVowel = 'o'; currentSortWord = phonicsData.longO[Math.floor(Math.random()*phonicsData.longO.length)]; }
             setTimeout(() => speak(currentSortWord), 500);
             const mainColor = currentSortVowel === 'i' ? 'cute-pink' : 'cute-blue';
             const mainColorHex = currentSortVowel === 'i' ? 'text-cute-pink-dark' : 'text-cute-blue-dark';
