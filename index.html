@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>快樂英語學習單</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;600&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Fredoka', 'Noto Sans TC', 'sans-serif'],
+                        cute: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        'cute-pink': '#FFB7B2',
+                        'cute-pink-dark': '#FF9E99',
+                        'cute-blue': '#A0E7E5',
+                        'cute-blue-dark': '#8CD1CF',
+                        'cute-yellow': '#FAE3B0',
+                        'cute-green': '#B4F8C8',
+                        'cute-text': '#6B5B95',
+                        'paper': '#FFF9F0'
+                    },
+                    boxShadow: {
+                        'cute': '0 4px 0 rgba(0,0,0,0.1)',
+                        'cute-active': '0 2px 0 rgba(0,0,0,0.1)',
+                        'card': '0 8px 20px rgba(107, 91, 149, 0.1)'
+                    },
+                    animation: {
+                        'bounce-short': 'bounce 0.5s infinite',
+                        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                        'pop': 'pop 0.3s ease-in-out',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.9)' },
+                            '50%': { transform: 'scale(1.1)' },
+                            '100%': { transform: 'scale(1)' }
+                        },
+                        float: {
+                            '0%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                            '100%': { transform: 'translateY(0px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #FFF5F7; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .btn-press { transition: all 0.1s; transform: translateY(0); }
+        .btn-press:active { transform: translateY(4px); box-shadow: 0 0 0 rgba(0,0,0,0) !important; }
+        .card-flip { perspective: 1000px; }
+        .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .card-flip.flipped .card-inner { transform: rotateY(180deg); }
+        .card-front, .card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .card-back { transform: rotateY(180deg); background-color: #ffffff; border: 4px solid #A0E7E5; }
+        .tab-active { color: #FF6B6B; transform: translateY(-5px); }
+        .tab-inactive { color: #9CA3AF; }
+        .correct-answer { background-color: #B4F8C8 !important; border-color: #7BC5AE !important; color: #2D6A4F !important; }
+        .wrong-answer { background-color: #FFB7B2 !important; border-color: #FF9E99 !important; color: #8B0000 !important; }
+        .doodle-svg { stroke-width: 8; stroke-linecap: round; stroke-linejoin: round; fill: none; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.1)); }
+        .vocab-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .fallback-svg { display: none; width: 100%; height: 100%; }
+        .progress-stripe { background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem; }
+    </style>
+</head>
+<body class="font-sans text-cute-text h-screen flex flex-col overflow-hidden select-none">
+
+    <!-- Top Bar -->
+    <header class="bg-white p-4 shadow-sm z-10 flex flex-col rounded-b-3xl">
+        <div class="flex justify-between items-center w-full mb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-cute-pink rounded-full flex items-center justify-center text-white font-bold text-xl shadow-cute">
+                    <i class="fa-solid fa-child-reaching"></i>
+                </div>
+                <h1 class="text-lg font-bold text-cute-text leading-tight">快樂英語</h1>
+            </div>
+            <div class="flex items-center gap-2 bg-cute-yellow px-3 py-1 rounded-full shadow-inner">
+                <i class="fa-solid fa-star text-yellow-500 animate-pulse"></i>
+                <span id="star-count" class="font-bold text-yellow-600">0</span>
+            </div>
+        </div>
+        
+        <!-- Unit Switcher -->
+        <div class="w-full flex bg-gray-100 p-1 rounded-xl">
+            <button onclick="switchUnit('unit1')" id="btn-unit1" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-white text-cute-text shadow-sm">Unit 1: Joke</button>
+            <button onclick="switchUnit('unit2')" id="btn-unit2" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all text-gray-400 hover:bg-gray-200">Unit 2: Feelings</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main id="app-content" class="flex-1 overflow-y-auto p-4 pb-28 bg-gradient-to-b from-white to-pink-50 relative no-scrollbar">
+        <!-- Views will be injected here -->
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 w-full bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl px-2 py-3 flex justify-around items-center z-20">
+        <button onclick="switchTab('vocab')" id="nav-vocab" class="flex flex-col items-center gap-1 transition-all duration-300 tab-active w-1/5">
+            <div class="text-2xl"><i class="fa-solid fa-layer-group"></i></div>
+            <span class="text-[10px] font-bold">單字</span>
+        </button>
+        <button onclick="switchTab('story')" id="nav-story" class="flex flex-col items-center gap-1 transition-all duration-300 tab-inactive w-1/5">
+            <div class="text-2xl" id="icon-story"><i class="fa-solid fa-book-open-reader"></i></div>
+            <span class="text-[10px] font-bold" id="label-story">故事</span>
+        </button>
+         <button onclick="switchTab('extra')" id="nav-extra" class="flex flex-col items-center gap-1 transition-all duration-300 tab-inactive w-1/5">
+            <div class="text-2xl" id="icon-extra"><i class="fa-solid fa-music"></i></div>
+            <span class="text-[10px] font-bold" id="label-extra">發音</span>
+        </button>
+        <button onclick="switchTab('quiz')" id="nav-quiz" class="flex flex-col items-center gap-1 transition-all duration-300 tab-inactive w-1/5">
+            <div class="text-2xl"><i class="fa-solid fa-circle-question"></i></div>
+            <span class="text-[10px] font-bold">測驗</span>
+        </button>
+        <button onclick="state.currentGame='menu'; switchTab('game')" id="nav-game" class="flex flex-col items-center gap-1 transition-all duration-300 tab-inactive w-1/5">
+            <div class="text-2xl"><i class="fa-solid fa-gamepad"></i></div>
+            <span class="text-[10px] font-bold">遊戲</span>
+        </button>
+    </nav>
+
+    <!-- Victory Modal -->
+    <div id="victory-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 text-center shadow-2xl transform scale-100 animate-pop">
+            <div class="w-24 h-24 bg-cute-yellow rounded-full mx-auto flex items-center justify-center text-5xl mb-4 text-yellow-500 shadow-inner">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-cute-text mb-2">恭喜通過！</h2>
+            <p class="text-gray-500 mb-6">太厲害了！你連續答對了 10 題！<br>獲得超級星星獎勵！</p>
+            <div class="flex justify-center gap-2 mb-6 text-3xl text-yellow-400">
+                <i class="fa-solid fa-star animate-bounce" style="animation-delay: 0s"></i>
+                <i class="fa-solid fa-star animate-bounce" style="animation-delay: 0.1s"></i>
+                <i class="fa-solid fa-star animate-bounce" style="animation-delay: 0.2s"></i>
+                <i class="fa-solid fa-star animate-bounce" style="animation-delay: 0.3s"></i>
+                <i class="fa-solid fa-star animate-bounce" style="animation-delay: 0.4s"></i>
+            </div>
+            <button onclick="closeVictoryModal()" class="w-full bg-cute-green text-green-800 font-bold py-3 rounded-2xl shadow-cute btn-press">
+                繼續挑戰
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- SVG Assets ---
+        const svgs = {
+            // Unit 1
+            store: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-blue-400 doodle-svg"><path d="M20,40 L20,90 L80,90 L80,40" /><path d="M10,40 L90,40 L80,20 L20,20 Z" /><path d="M35,90 L35,60 L65,60 L65,90" /><path d="M15,40 Q25,50 35,40 Q45,50 55,40 Q65,50 75,40 Q85,50 95,40" fill="none" class="stroke-yellow-400" /></svg>`,
+            cone: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-yellow-500 doodle-svg"><path d="M30,40 L50,90 L70,40 Z" /><path d="M35,55 L65,55 M40,65 L60,65 M45,75 L55,75" stroke-width="4" opacity="0.6"/><path d="M25,40 Q25,10 50,10 Q75,10 75,40 Q75,50 50,50 Q25,50 25,40" fill="#FFF5F7" class="stroke-pink-300" /></svg>`,
+            rose: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-red-400 doodle-svg"><path d="M50,90 L50,50" class="stroke-green-400" /><path d="M50,70 Q70,60 60,80" class="stroke-green-400" fill="none" /><path d="M50,50 Q70,50 70,30 Q70,10 50,10 Q30,10 30,30 Q30,50 50,50 Z" /><path d="M40,30 Q50,40 60,30 Q50,20 40,30" /></svg>`,
+            bone: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-gray-400 doodle-svg"><path d="M20,40 Q10,30 20,20 Q30,10 40,30 L60,30 Q70,10 80,20 Q90,30 80,40 Q90,50 80,60 Q70,70 60,50 L40,50 Q30,70 20,60 Q10,50 20,40 Z" /></svg>`,
+            nose: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-orange-400 doodle-svg"><path d="M40,20 Q40,60 20,70 Q50,90 80,70 Q60,60 60,60" fill="none" /><circle cx="35" cy="70" r="2" fill="currentColor" class="text-orange-300" stroke="none" /></svg>`,
+            joke: `<svg viewBox="0 0 100 100" class="w-full h-full stroke-purple-400 doodle-svg"><path d="M20,20 Q80,20 80,50 Q80,80 50,80 L30,90 L35,75 Q20,70 20,50 Z" /><text x="32" y="58" font-family="Fredoka" font-size="28" stroke="none" fill="currentColor" class="text-purple-400 font-bold">Ha!</text></svg>`,
+            
+            // Unit 2 - Colors & Emotions
+            face_base: `<circle cx="50" cy="50" r="45" fill="currentColor" stroke="#333" stroke-width="3" />`,
+            happy: `<path d="M30,40 Q35,30 40,40 M60,40 Q65,30 70,40 M30,60 Q50,80 70,60" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+            sad: `<path d="M30,40 Q35,30 40,40 M60,40 Q65,30 70,40 M30,75 Q50,55 70,75" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+            angry: `<path d="M25,35 L45,45 M75,35 L55,45 M35,70 L65,70" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/> <circle cx="35" cy="50" r="3" fill="#333"/><circle cx="65" cy="50" r="3" fill="#333"/>`,
+            scared: `<circle cx="35" cy="45" r="5" fill="#333"/><circle cx="65" cy="45" r="5" fill="#333"/><ellipse cx="50" cy="70" rx="10" ry="15" fill="none" stroke="#333" stroke-width="3"/> <path d="M30,25 Q35,20 40,25 M60,25 Q65,20 70,25" stroke="#333" stroke-width="2" fill="none"/>`,
+            sleepy: `<path d="M30,45 L45,45 M60,45 L75,45" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M55,65 Q60,70 65,65" stroke="#333" stroke-width="3" fill="none"/><text x="70" y="30" font-family="sans-serif" font-size="20" fill="#333">Z</text>`,
+            disgusted: `<path d="M30,40 Q35,45 40,40 M60,40 Q65,45 70,40 M30,65 Q40,60 50,65 Q60,70 70,65" stroke="#333" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M45,70 L50,85 L55,70" fill="pink" stroke="#333" stroke-width="2"/>`,
+            
+            // Blobs for Colors
+            blob: `<path d="M40.2,-46.3C52.7,-38.2,63.9,-27.1,68.6,-13.6C73.2,-0.1,71.3,15.8,63.4,28.8C55.5,41.8,41.6,51.9,27.1,58.3C12.6,64.7,-2.5,67.4,-16.9,64.2C-31.3,61,-45,51.9,-54.8,39.3C-64.6,26.7,-70.5,10.6,-68.6,-4.2C-66.7,-19,-56.9,-32.5,-45.5,-40.8C-34.1,-49.1,-21.1,-52.2,-7.4,-51.3C6.3,-50.4,19,-45.5,40.2,-46.3Z" transform="translate(50 50) scale(0.6)" stroke="#333" stroke-width="2" fill="currentColor"/>`
+        };
+
+        // --- Data ---
+        const units = {
+            unit1: {
+                id: 'unit1',
+                title: "Funny Joke",
+                vocab: [
+                    { word: 'store', img: 'store.png', svg: svgs.store, color: 'bg-blue-50', text: 'text-blue-500', translation: '商店' },
+                    { word: 'cone',  img: 'cone.png',  svg: svgs.cone,  color: 'bg-yellow-50', text: 'text-yellow-600', translation: '甜筒' },
+                    { word: 'rose',  img: 'rose.png',  svg: svgs.rose,  color: 'bg-red-50',    text: 'text-red-500',    translation: '玫瑰' }, 
+                    { word: 'bone',  img: 'bone.png',  svg: svgs.bone,  color: 'bg-gray-50',   text: 'text-gray-500',   translation: '骨頭' },
+                    { word: 'nose',  img: 'nose.png',  svg: svgs.nose,  color: 'bg-orange-50', text: 'text-orange-500', translation: '鼻子' },
+                    { word: 'joke',  img: 'joke.png',  svg: svgs.joke,  color: 'bg-purple-50', text: 'text-purple-500', translation: '笑話' }
+                ],
+                storyType: 'text',
+                story: [
+                    { text: "Miss Jones has an ice cream store.", highlight: ["store"] },
+                    { text: "Her store sells ice cream cones.", highlight: ["store", "cones"] },
+                    { text: "The chocolate cone is filled with chocolates.", highlight: ["cone", "chocolates"] },
+                    { text: "The rose cone is filled with roses.", highlight: ["rose", "roses"] },
+                    { text: "The bone cone is filled with bones.", highlight: ["bone", "bones"] },
+                    { text: "The nose cone is filled with noses.", highlight: ["nose", "noses"] },
+                    { text: "\"Wait a minute. Are you sure?\"", highlight: [] },
+                    { text: "Just kidding. It's a joke.", highlight: ["joke"] },
+                    { text: "I hope you like my funny joke.", highlight: ["joke"] }
+                ],
+                extraType: 'phonics', // Tab 3 is Phonics
+                phonics: {
+                    shortI: ['miss', 'is', 'fill', 'with', 'kid', 'it', 'big', 'six'],
+                    longO: ['rose', 'nose', 'bone', 'cone', 'store', 'joke', 'home', 'hope']
+                },
+                quiz: [
+                    { question: "The story is about...", options: ["a cone", "a store", "a joke"], correct: 2 },
+                    { question: "There are _____ in the rose cone.", options: ["noses", "roses", "bones"], correct: 1 },
+                    { question: "There isn't a _____ cone.", options: ["ice cream", "chocolate", "nose"], correct: 2 }
+                ]
+            },
+            unit2: {
+                id: 'unit2',
+                title: "Feelings & Colors",
+                vocab: [
+                    // Emotions
+                    { word: 'happy',     type:'emotion', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-yellow-300">${svgs.face_base}${svgs.happy}</svg>`, color: 'bg-yellow-50', text: 'text-yellow-600', translation: '快樂' },
+                    { word: 'scared',    type:'emotion', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-purple-300">${svgs.face_base}${svgs.scared}</svg>`, color: 'bg-purple-50', text: 'text-purple-500', translation: '害怕' },
+                    { word: 'angry',     type:'emotion', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-red-400">${svgs.face_base}${svgs.angry}</svg>`, color: 'bg-red-50', text: 'text-red-500', translation: '生氣' },
+                    { word: 'sleepy',    type:'emotion', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-blue-200">${svgs.face_base}${svgs.sleepy}</svg>`, color: 'bg-blue-50', text: 'text-blue-400', translation: '想睡' },
+                    { word: 'disgusted', type:'emotion', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-green-300">${svgs.face_base}${svgs.disgusted}</svg>`, color: 'bg-green-50', text: 'text-green-600', translation: '噁心' },
+                    { word: 'sad',       type:'emotion', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-blue-400">${svgs.face_base}${svgs.sad}</svg>`, color: 'bg-blue-50', text: 'text-blue-600', translation: '難過' },
+                    // Colors
+                    { word: 'red',    type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-red-500">${svgs.blob}</svg>`, color: 'bg-red-100', text: 'text-red-600', translation: '紅色' },
+                    { word: 'blue',   type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-blue-500">${svgs.blob}</svg>`, color: 'bg-blue-100', text: 'text-blue-600', translation: '藍色' },
+                    { word: 'green',  type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-green-500">${svgs.blob}</svg>`, color: 'bg-green-100', text: 'text-green-600', translation: '綠色' },
+                    { word: 'pink',   type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-pink-400">${svgs.blob}</svg>`, color: 'bg-pink-100', text: 'text-pink-500', translation: '粉紅' },
+                    { word: 'yellow', type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-yellow-400">${svgs.blob}</svg>`, color: 'bg-yellow-100', text: 'text-yellow-600', translation: '黃色' },
+                    { word: 'black',  type:'color', svg: `<svg viewBox="0 0 100 100" class="w-full h-full text-gray-800">${svgs.blob}</svg>`, color: 'bg-gray-200', text: 'text-gray-800', translation: '黑色' }
+                ],
+                storyType: 'text', // Changed from 'video' to 'text'
+                story: [
+                    { text: "If you're happy happy happy clap your hands.", highlight: ["happy"] },
+                    { text: "If you're happy happy happy clap your hands.", highlight: ["happy"] },
+                    { text: "If you're happy happy happy clap your hands.", highlight: ["happy"] },
+                    { text: "If you're angry angry angry stomp your feet.", highlight: ["angry"] },
+                    { text: "If you're angry angry angry stomp your feet.", highlight: ["angry"] },
+                    { text: "If you're scared scared scared say oh no.", highlight: ["scared"] },
+                    { text: "If you're scared scared scared say oh no.", highlight: ["scared"] },
+                    { text: "If you're sleepy sleepy sleepy take a nap.", highlight: ["sleepy"] },
+                    { text: "If you're sleepy sleepy sleepy take a nap.", highlight: ["sleepy"] },
+                    { text: "If you're happy happy happy clap your hands!", highlight: ["happy"] }
+                ],
+                extraType: 'sentences', // Tab 3 is Sentence Practice
+                quiz: [
+                    { question: "If you are ____, you clap your hands.", options: ["sad", "happy", "angry"], correct: 1 },
+                    { question: "If you are ____, you stomp your feet.", options: ["happy", "sleepy", "angry"], correct: 2 },
+                    { question: "If you are ____, you take a nap.", options: ["sleepy", "scared", "red"], correct: 0 },
+                    { question: "The color of an apple is usually ____.", options: ["blue", "red", "black"], correct: 1 }
+                ]
+            }
+        };
+
+        const sightWords = ['has', 'an', 'her', 'the', 'with', 'are', 'you', 'my', 'is', 'he', 'she'];
+
+        // --- Helper ---
+        function getMediaHtml(item) {
+            if (item.img) {
+                return `
+                    <div class="w-full h-full relative flex items-center justify-center rounded-full overflow-hidden border-4 border-white shadow-sm">
+                        <img src="${item.img}" class="vocab-img" onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='block';">
+                    </div>
+                    <div class="fallback-svg hidden w-full h-full">${item.svg}</div>
+                `;
+            } else {
+                return item.svg;
+            }
+        }
+
+        // --- State ---
+        let state = {
+            currentUnitId: 'unit1',
+            currentTab: 'vocab',
+            stars: parseInt(localStorage.getItem('englishAppStars')) || 0,
+            currentVocabIndex: 0,
+            currentGame: 'menu', 
+            currentPhonicsMode: 'teach',
+            spellingStreak: 0,
+            spellingTarget: 10,
+            spellingMistakes: [], 
+            currentWordIsDirty: false 
+        };
+
+        // --- Init ---
+        function init() {
+            renderStars();
+            switchUnit('unit1');
+        }
+
+        function saveStars(count) {
+            state.stars += count;
+            localStorage.setItem('englishAppStars', state.stars);
+            renderStars();
+            if(count > 0) triggerConfetti();
+        }
+
+        function renderStars() { document.getElementById('star-count').innerText = state.stars; }
+        function speak(text, lang = 'en-US') {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+        function triggerConfetti() { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#FFB7B2', '#A0E7E5', '#FAE3B0'] }); }
+
+        // --- Switching Units ---
+        function switchUnit(unitId) {
+            state.currentUnitId = unitId;
+            state.currentVocabIndex = 0;
+            state.currentGame = 'menu';
+            
+            // Update UI buttons
+            document.getElementById('btn-unit1').className = unitId === 'unit1' ? "flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-white text-cute-text shadow-sm" : "flex-1 py-2 rounded-lg text-xs font-bold transition-all text-gray-400 hover:bg-gray-200";
+            document.getElementById('btn-unit2').className = unitId === 'unit2' ? "flex-1 py-2 rounded-lg text-xs font-bold transition-all bg-white text-cute-text shadow-sm" : "flex-1 py-2 rounded-lg text-xs font-bold transition-all text-gray-400 hover:bg-gray-200";
+
+            // Update Nav Labels/Icons based on Unit
+            const unit = units[unitId];
+            
+            // Story is always text now (or lyrics)
+            document.getElementById('label-story').innerText = unitId === 'unit2' ? "兒歌歌詞" : "故事";
+            document.getElementById('icon-story').innerHTML = unitId === 'unit2' ? '<i class="fa-solid fa-music"></i>' : '<i class="fa-solid fa-book-open-reader"></i>';
+
+            if(unit.extraType === 'sentences') {
+                document.getElementById('label-extra').innerText = "句型";
+                document.getElementById('icon-extra').innerHTML = '<i class="fa-solid fa-comments"></i>';
+            } else {
+                document.getElementById('label-extra').innerText = "發音";
+                document.getElementById('icon-extra').innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+            }
+
+            switchTab('vocab');
+        }
+
+        // --- Navigation ---
+        function switchTab(tab) {
+            state.currentTab = tab;
+            ['vocab', 'story', 'extra', 'quiz', 'game'].forEach(t => {
+                const btn = document.getElementById(`nav-${t}`);
+                if (t === tab) {
+                    btn.classList.remove('tab-inactive');
+                    btn.classList.add('tab-active');
+                } else {
+                    btn.classList.add('tab-inactive');
+                    btn.classList.remove('tab-active');
+                }
+            });
+
+            const container = document.getElementById('app-content');
+            container.innerHTML = '';
+            
+            const unit = units[state.currentUnitId];
+
+            if (tab === 'vocab') renderVocab(container, unit);
+            if (tab === 'story') renderStoryText(container, unit); // Always text renderer now
+            if (tab === 'extra') {
+                if(unit.extraType === 'sentences') renderSentences(container, unit);
+                else renderPhonics(container, unit);
+            }
+            if (tab === 'quiz') renderQuiz(container, unit);
+            if (tab === 'game') renderGame(container, unit);
+        }
+
+        // --- View: Vocab ---
+        function renderVocab(container, unit) {
+            let html = `
+                <div class="flex flex-col gap-6 items-center pt-4">
+                    <h2 class="text-2xl font-bold text-cute-text mb-2">單字卡 (Flashcards)</h2>
+                    <p class="text-gray-400 text-sm mb-4">點擊卡片翻面 • 點擊喇叭發音</p>
+                    <div class="w-full max-w-xs h-72 relative perspective-1000 group cursor-pointer" onclick="flipCard()">
+                        <div id="vocab-card" class="card-flip w-full h-full relative preserve-3d transition-transform duration-500"></div>
+                    </div>
+                    <div class="flex gap-4 items-center mt-2">
+                        <button onclick="prevCard(event)" class="w-12 h-12 bg-white rounded-full shadow-cute flex items-center justify-center text-cute-pink-dark btn-press"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button onclick="playCurrentVocab(event)" class="w-16 h-16 bg-cute-yellow rounded-full shadow-cute flex items-center justify-center text-yellow-600 text-2xl btn-press animate-pop"><i class="fa-solid fa-volume-high"></i></button>
+                        <button onclick="nextCard(event)" class="w-12 h-12 bg-white rounded-full shadow-cute flex items-center justify-center text-cute-pink-dark btn-press"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+            updateVocabCard();
+        }
+
+        function updateVocabCard() {
+            const unit = units[state.currentUnitId];
+            const card = document.getElementById('vocab-card');
+            const item = unit.vocab[state.currentVocabIndex];
+            card.classList.remove('flipped');
+            setTimeout(() => {
+                card.innerHTML = `
+                    <div class="card-front bg-white shadow-card border-4 border-transparent">
+                        <div class="w-48 h-48 ${item.color} rounded-full flex items-center justify-center mb-2 p-1">${getMediaHtml(item)}</div>
+                        <h3 class="text-4xl font-bold text-gray-700 mb-2">${item.word}</h3>
+                        <p class="text-gray-400 text-sm">Tap to flip</p>
+                    </div>
+                    <div class="card-back shadow-card">
+                        <h3 class="text-3xl font-bold text-gray-600 mb-6">${item.translation}</h3>
+                        <div class="w-32 h-32 opacity-30">${getMediaHtml(item)}</div>
+                    </div>
+                `;
+            }, 150);
+        }
+        function flipCard() { document.getElementById('vocab-card').classList.toggle('flipped'); }
+        function nextCard(e) { e.stopPropagation(); const len = units[state.currentUnitId].vocab.length; state.currentVocabIndex = (state.currentVocabIndex + 1) % len; updateVocabCard(); }
+        function prevCard(e) { e.stopPropagation(); const len = units[state.currentUnitId].vocab.length; state.currentVocabIndex = (state.currentVocabIndex - 1 + len) % len; updateVocabCard(); }
+        function playCurrentVocab(e) { e.stopPropagation(); speak(units[state.currentUnitId].vocab[state.currentVocabIndex].word); }
+
+        // --- View: Story (Text) ---
+        function renderStoryText(container, unit) {
+            let title = unit.id === 'unit2' ? "If You're Happy" : "A Funny Joke";
+            let html = `
+                <div class="max-w-md mx-auto">
+                    <div class="flex justify-between items-center mb-4"><h2 class="text-2xl font-bold text-cute-text">${title}</h2><button onclick="readFullStory()" class="bg-cute-pink text-white px-4 py-2 rounded-full shadow-cute btn-press text-sm font-bold"><i class="fa-solid fa-play mr-1"></i> 全文朗讀</button></div>
+                    <div class="bg-white rounded-3xl p-6 shadow-card space-y-4 mb-8">
+                        ${unit.story.map((line, idx) => `<div class="flex gap-3 items-start group cursor-pointer" onclick="speak('${line.text.replace(/'/g, "\\'")}')"><div class="mt-1 min-w-[24px] h-6 bg-cute-yellow rounded-full flex items-center justify-center text-xs font-bold text-yellow-700 shadow-sm">${idx + 1}</div><p class="text-lg leading-relaxed text-gray-700 group-hover:text-cute-pink-dark transition-colors">${highlightWords(line.text, line.highlight)}</p></div>`).join('')}
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+        function highlightWords(text, words) {
+            let processed = text;
+            words.forEach(word => { const regex = new RegExp(`(${word})`, 'gi'); processed = processed.replace(regex, '<span class="font-bold text-cute-pink-dark">$1</span>'); });
+            return processed;
+        }
+        function readFullStory() { speak(units[state.currentUnitId].story.map(l => l.text).join(' ')); }
+
+        // --- View: Phonics (Unit 1) ---
+        function renderPhonics(container, unit) {
+            // ... (Same as before code for Phonics) ...
+            if(state.currentPhonicsMode === 'teach') {
+                // Simplified for brevity, same logic
+                container.innerHTML = `<div class="max-w-md mx-auto pt-2"><h2 class="text-2xl font-bold text-cute-text text-center mb-4">自然發音</h2><div class="bg-white p-6 rounded-3xl mb-4 shadow-sm"><h3 class="font-bold text-pink-400">Short i</h3><div class="flex flex-wrap gap-2 mt-2">${unit.phonics.shortI.map(w=>`<span onclick="speak('${w}')" class="px-2 bg-pink-50 rounded cursor-pointer">${w}</span>`).join('')}</div></div><div class="bg-white p-6 rounded-3xl mb-4 shadow-sm"><h3 class="font-bold text-blue-400">Long o</h3><div class="flex flex-wrap gap-2 mt-2">${unit.phonics.longO.map(w=>`<span onclick="speak('${w}')" class="px-2 bg-blue-50 rounded cursor-pointer">${w}</span>`).join('')}</div></div><button onclick="state.currentPhonicsMode='sortGame'; switchTab('extra')" class="w-full bg-cute-yellow text-yellow-800 font-bold py-3 rounded-2xl">玩分類遊戲</button></div>`;
+            } else {
+                renderPhonicsGame(container, unit);
+            }
+        }
+        
+        // --- View: Sentences (Unit 2) ---
+        function renderSentences(container, unit) {
+            // ... (Random generation logic remains same) ...
+            const subjects = ['you', 'he', 'she'];
+            const subject = subjects[Math.floor(Math.random() * subjects.length)];
+            const verb = subject === 'you' ? 'Are' : 'Is';
+            
+            const emotions = unit.vocab.filter(v => v.type === 'emotion');
+            const colors = unit.vocab.filter(v => v.type === 'color');
+            const targetEmotion = emotions[Math.floor(Math.random() * emotions.length)];
+            const targetColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            const match = Math.random() > 0.5;
+            let qEmotion, qColor;
+            
+            if (match) { qEmotion = targetEmotion; qColor = targetColor; } 
+            else {
+                if (Math.random() > 0.5) qEmotion = emotions[Math.floor(Math.random() * emotions.length)]; else qEmotion = targetEmotion;
+                if (Math.random() > 0.5 || qEmotion === targetEmotion) qColor = colors[Math.floor(Math.random() * colors.length)]; else qColor = targetColor;
+                if (qEmotion === targetEmotion && qColor === targetColor) qColor = colors.find(c => c.word !== targetColor.word) || colors[0];
+            }
+
+            const colorMap = { red: 'text-red-400', blue: 'text-blue-400', green: 'text-green-400', pink: 'text-pink-400', yellow: 'text-yellow-400', black: 'text-gray-700' };
+            let faceColorClass = colorMap[targetColor.word];
+            const featurePath = svgs[targetEmotion.word]; 
+            const faceHtml = `<svg viewBox="0 0 100 100" class="w-40 h-40 ${faceColorClass} fill-current">${svgs.face_base}</svg><svg viewBox="0 0 100 100" class="w-40 h-40 absolute top-0 left-0 text-gray-800 fill-current">${featurePath}</svg>`;
+
+            const yesText = subject === 'you' ? 'I am' : subject + ' is';
+            const noText = subject === 'you' ? "I'm not" : subject + " isn't";
+
+            container.innerHTML = `
+                <div class="h-full flex flex-col items-center pt-4 px-4 text-center">
+                    <h2 class="text-xl font-bold text-cute-text mb-6">句型練習 (Q&A)</h2>
+                    <div class="relative w-40 h-40 mb-6 animate-float">${faceHtml}</div>
+                    <div class="bg-white p-6 rounded-3xl shadow-sm w-full mb-6">
+                        <p class="text-xl font-bold text-gray-700 mb-2">${verb} ${subject} <span class="text-pink-500">${qEmotion.word}</span> and <span class="text-blue-500">${qColor.word}</span>?</p>
+                        <button onclick="speak('${verb} ${subject} ${qEmotion.word} and ${qColor.word}?')" class="text-gray-400 text-sm"><i class="fa-solid fa-volume-high"></i> 聽題目</button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 w-full">
+                        <!-- Yes Card -->
+                        <button onclick="checkSentence(true, ${match})" class="bg-white rounded-3xl shadow-card p-4 flex flex-col items-center justify-center border-4 border-transparent hover:border-green-300 transition-all cursor-pointer btn-press group">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-3xl text-green-500 mb-2 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                            <span class="text-lg font-bold text-green-600">Yes</span>
+                            <span class="text-xs text-gray-400 font-bold">${yesText}</span>
+                        </button>
+
+                        <!-- No Card -->
+                        <button onclick="checkSentence(false, ${match})" class="bg-white rounded-3xl shadow-card p-4 flex flex-col items-center justify-center border-4 border-transparent hover:border-red-300 transition-all cursor-pointer btn-press group">
+                            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center text-3xl text-red-500 mb-2 group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                            <span class="text-lg font-bold text-red-600">No</span>
+                            <span class="text-xs text-gray-400 font-bold">${noText}</span>
+                        </button>
+                    </div>
+                    <div id="sentence-feedback" class="mt-4 h-8 font-bold text-lg"></div>
+                </div>
+            `;
+        }
+
+        function checkSentence(userYes, isYes) {
+            const feedback = document.getElementById('sentence-feedback');
+            if (userYes === isYes) {
+                feedback.innerText = "Correct! 答對了！";
+                feedback.className = "mt-4 h-8 font-bold text-lg text-green-500 animate-pop";
+                saveStars(1);
+                speak("Correct!");
+                setTimeout(() => renderSentences(document.getElementById('app-content'), units[state.currentUnitId]), 1500);
+            } else {
+                feedback.innerText = "Try again! 再試一次！";
+                feedback.className = "mt-4 h-8 font-bold text-lg text-red-500 animate-shake";
+                speak("Try again");
+            }
+        }
+
+        // --- View: Quiz ---
+        function renderQuiz(container, unit) {
+            let html = `<div class="max-w-md mx-auto pt-4"><h2 class="text-2xl font-bold text-cute-text text-center mb-6">小測驗 (Quiz)</h2>`;
+            unit.quiz.forEach((q, qIdx) => {
+                html += `<div class="bg-white rounded-2xl p-5 mb-4 shadow-sm border-b-4 border-gray-100"><h3 class="font-bold text-lg text-gray-700 mb-4 flex items-start"><span class="bg-cute-blue text-white w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-sm mr-2 mt-1">${qIdx + 1}</span>${q.question}</h3><div class="space-y-2" id="q-container-${qIdx}">${q.options.map((opt, oIdx) => `<button onclick="checkAnswer(this, ${qIdx}, ${oIdx})" class="w-full text-left px-4 py-3 rounded-xl border-2 border-gray-100 bg-gray-50 text-gray-600 font-medium transition-all btn-press hover:bg-gray-100 quiz-opt-${qIdx}">${String.fromCharCode(65 + oIdx)}. ${opt}</button>`).join('')}</div><div id="feedback-${qIdx}" class="hidden mt-3 text-sm font-bold text-center"></div></div>`;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+        function checkAnswer(btn, qIdx, selectedIdx) {
+            const unit = units[state.currentUnitId];
+            const isCorrect = (selectedIdx === unit.quiz[qIdx].correct);
+            const feedback = document.getElementById(`feedback-${qIdx}`);
+            const allBtns = document.querySelectorAll(`.quiz-opt-${qIdx}`);
+            if (isCorrect) {
+                allBtns.forEach(b => { b.disabled = true; if(b !== btn) b.classList.add('opacity-50'); });
+                btn.classList.add('correct-answer'); btn.classList.remove('bg-gray-50');
+                feedback.innerHTML = `<i class="fa-solid fa-check-circle"></i> 答對了！Good job!`; feedback.className = "mt-3 text-sm font-bold text-center text-green-600 animate-pop"; feedback.classList.remove('hidden');
+                saveStars(1); speak("Correct!");
+            } else {
+                btn.classList.add('wrong-answer'); btn.classList.add('animate-shake'); btn.disabled = true;
+                feedback.innerHTML = `<i class="fa-solid fa-xmark-circle"></i> 哎呀，再試一次！`; feedback.className = "mt-3 text-sm font-bold text-center text-red-500"; feedback.classList.remove('hidden');
+                speak("Try again.");
+            }
+        }
+
+        // --- Game Hub ---
+        function renderGame(container, unit) {
+            if (state.currentGame === 'menu') renderGameMenu(container);
+            else if (state.currentGame === 'matching') renderMatchingGame(container, unit);
+            else if (state.currentGame === 'spelling') renderSpellingGame(container, unit);
+        }
+
+        function renderGameMenu(container) {
+            container.innerHTML = `
+                <div class="h-full flex flex-col justify-center gap-6 px-6">
+                    <h2 class="text-3xl font-bold text-center text-cute-text mb-4">遊戲大廳</h2>
+                    <button onclick="startGameMode('matching')" class="bg-white p-6 rounded-3xl shadow-card border-l-8 border-cute-yellow flex items-center gap-4 btn-press"><div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center text-3xl text-yellow-600"><i class="fa-solid fa-object-group"></i></div><div class="text-left"><h3 class="text-xl font-bold text-gray-700">連連看 (Matching)</h3><p class="text-gray-400 text-sm">單字與圖片配對</p></div></button>
+                    <button onclick="startGameMode('spelling')" class="bg-white p-6 rounded-3xl shadow-card border-l-8 border-cute-green flex items-center gap-4 btn-press"><div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-3xl text-green-600"><i class="fa-solid fa-spell-check"></i></div><div class="text-left"><h3 class="text-xl font-bold text-gray-700">單字填空 (Spelling)</h3><p class="text-gray-400 text-sm">練習拼出正確單字</p></div></button>
+                </div>
+            `;
+        }
+        function startGameMode(mode) {
+            state.currentGame = mode;
+            if(mode === 'spelling') { state.spellingStreak = 0; state.spellingMistakes = []; currentSpellingItem = null; }
+            switchTab('game');
+        }
+
+        // --- Matching Game ---
+        let selectedWord=null, selectedIcon=null, matchedPairs=0;
+        function renderMatchingGame(container, unit) {
+            container.innerHTML = `<div class="pt-4 h-full flex flex-col"><div class="flex justify-between items-center mb-4"><button onclick="state.currentGame='menu'; switchTab('game')" class="text-gray-400 text-sm"><i class="fa-solid fa-chevron-left"></i> 回大廳</button><h2 class="text-xl font-bold text-cute-text">連連看</h2><div class="w-12"></div></div><div id="game-board" class="flex-1 flex justify-between px-4 items-center max-w-sm mx-auto w-full gap-6"></div></div>`;
+            setTimeout(() => initMatchingGame(unit), 100);
+        }
+        function initMatchingGame(unit) {
+            const board = document.getElementById('game-board'); if(!board) return;
+            matchedPairs=0; selectedWord=null; selectedIcon=null;
+            let gameItems = [...unit.vocab].sort(()=>0.5-Math.random()).slice(0,4);
+            let words = [...gameItems].sort(()=>0.5-Math.random());
+            let icons = [...gameItems].sort(()=>0.5-Math.random());
+            let leftCol = `<div class="flex flex-col gap-3 w-1/2">${words.map(item => `<button data-val="${item.word}" onclick="selectMatchingItem(this, 'word')" class="game-item-word w-full py-4 bg-white border-2 border-cute-blue rounded-xl text-cute-text font-bold text-lg shadow-sm active:scale-95 transition-all">${item.word}</button>`).join('')}</div>`;
+            let rightCol = `<div class="flex flex-col gap-3 w-1/2">${icons.map(item => `<button data-val="${item.word}" onclick="selectMatchingItem(this, 'icon')" class="game-item-icon w-full h-20 bg-white border-2 border-cute-pink rounded-xl text-2xl shadow-sm active:scale-95 transition-all text-gray-500 overflow-hidden p-1">${getMediaHtml(item)}</button>`).join('')}</div>`;
+            board.innerHTML = leftCol + rightCol;
+        }
+        function selectMatchingItem(el, type) {
+            if (el.classList.contains('opacity-20')) return;
+            document.querySelectorAll(type==='word'?'.game-item-word':'.game-item-icon').forEach(b=>{if(!b.classList.contains('opacity-20')){b.classList.remove('bg-cute-yellow','border-yellow-400');b.classList.add('bg-white');}});
+            el.classList.remove('bg-white'); el.classList.add('bg-cute-yellow','border-yellow-400'); speak(el.getAttribute('data-val'));
+            if(type==='word') selectedWord=el; else selectedIcon=el;
+            if(selectedWord && selectedIcon) {
+                if(selectedWord.getAttribute('data-val')===selectedIcon.getAttribute('data-val')) {
+                    selectedWord.classList.add('opacity-20','cursor-not-allowed','border-green-400','bg-green-100'); selectedIcon.classList.add('opacity-20','cursor-not-allowed','border-green-400','bg-green-100');
+                    matchedPairs++; speak("Great!"); selectedWord=null; selectedIcon=null;
+                    if(matchedPairs===4) setTimeout(()=>{triggerConfetti(); saveStars(3); alert("恭喜！全部答對了！ +3 顆星星"); initMatchingGame(units[state.currentUnitId]);}, 500);
+                } else {
+                    setTimeout(()=>{ if(selectedWord){selectedWord.classList.remove('bg-cute-yellow','border-yellow-400');selectedWord.classList.add('bg-white');} if(selectedIcon){selectedIcon.classList.remove('bg-cute-yellow','border-yellow-400');selectedIcon.classList.add('bg-white');} selectedWord=null; selectedIcon=null; speak("Oops"); }, 500);
+                }
+            }
+        }
+
+        // --- Spelling Game ---
+        let currentSpellingItem = null;
+        let spellingSlots = [];
+        let spellingPool = [];
+
+        function renderSpellingGame(container, unit) {
+            if (!currentSpellingItem) {
+                if (state.spellingMistakes.length > 0 && Math.random() > 0.4) {
+                    currentSpellingItem = state.spellingMistakes.shift(); 
+                } else {
+                    currentSpellingItem = unit.vocab[Math.floor(Math.random() * unit.vocab.length)];
+                }
+                spellingSlots = Array(currentSpellingItem.word.length).fill(null);
+                spellingPool = currentSpellingItem.word.split('').sort(() => 0.5 - Math.random()).map((char, id) => ({char, id, used: false}));
+                state.currentWordIsDirty = false;
+            }
+
+            let progressWidth = (state.spellingStreak / state.spellingTarget) * 100;
+
+            let html = `
+                 <div class="pt-2 h-full flex flex-col items-center w-full">
+                    <div class="w-full flex justify-between items-center mb-2 px-4">
+                        <button onclick="state.currentGame='menu'; currentSpellingItem=null; switchTab('game')" class="text-gray-400 text-sm"><i class="fa-solid fa-chevron-left"></i> 回大廳</button>
+                        <div class="flex-1 mx-4">
+                            <div class="flex justify-between text-xs font-bold text-cute-text mb-1">
+                                <span>連續答對</span>
+                                <span>${state.spellingStreak} / ${state.spellingTarget}</span>
+                            </div>
+                            <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden border border-gray-100">
+                                <div class="h-full bg-cute-green transition-all duration-500 progress-stripe relative" style="width: ${progressWidth}%"></div>
+                            </div>
+                        </div>
+                        <div class="w-8"></div>
+                    </div>
+
+                    <h2 class="text-xl font-bold text-cute-text mb-4">單字填空</h2>
+
+                    <div id="spelling-image-container" class="bg-white p-6 rounded-full shadow-md mb-6 w-40 h-40 flex items-center justify-center border-4 border-cute-green cursor-pointer overflow-hidden p-1 transition-transform" onclick="speak('${currentSpellingItem.word}')">
+                        ${getMediaHtml(currentSpellingItem)}
+                    </div>
+
+                    <div id="spelling-feedback" class="h-6 text-sm font-bold text-red-500 mb-4 opacity-0 transition-opacity"></div>
+
+                    <div class="flex gap-2 mb-8" id="answer-slots">
+                        ${spellingSlots.map((char, idx) => `
+                            <div onclick="returnSpellingChar(${idx})" class="w-12 h-14 border-b-4 ${char ? 'border-cute-text text-cute-text' : 'border-gray-300'} flex items-center justify-center text-3xl font-bold cursor-pointer transition-all bg-white rounded-t-lg shadow-sm slot-box">
+                                ${char ? char.char : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="flex flex-wrap justify-center gap-3 px-6">
+                        ${spellingPool.map((item, idx) => `
+                            <button onclick="useSpellingChar(${idx})" 
+                                class="w-14 h-14 bg-cute-yellow rounded-xl shadow-cute text-2xl font-bold text-yellow-800 btn-press transition-all ${item.used ? 'opacity-0 pointer-events-none' : ''}">
+                                ${item.char}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function useSpellingChar(poolIdx) {
+            const slotIdx = spellingSlots.findIndex(s => s === null);
+            if (slotIdx === -1) return; 
+            const item = spellingPool[poolIdx];
+            item.used = true;
+            spellingSlots[slotIdx] = item;
+            speak(item.char);
+            renderSpellingGame(document.getElementById('app-content'), units[state.currentUnitId]);
+            checkSpellingWin();
+        }
+
+        function returnSpellingChar(slotIdx) {
+            const item = spellingSlots[slotIdx];
+            if (!item) return;
+            const poolItem = spellingPool.find(p => p.id === item.id);
+            poolItem.used = false;
+            spellingSlots[slotIdx] = null;
+            renderSpellingGame(document.getElementById('app-content'), units[state.currentUnitId]);
+        }
+
+        function checkSpellingWin() {
+            if (spellingSlots.some(s => s === null)) return;
+            const currentWord = spellingSlots.map(s => s.char).join('');
+            if (currentWord === currentSpellingItem.word) {
+                const slots = document.querySelectorAll('.slot-box');
+                slots.forEach(s => { s.classList.remove('border-cute-text'); s.classList.add('border-green-500', 'text-green-600', 'bg-green-50'); });
+                speak(currentWord);
+                if (!state.currentWordIsDirty) state.spellingStreak++;
+                if (state.spellingStreak >= state.spellingTarget) {
+                    setTimeout(() => { showVictoryModal(); state.spellingStreak = 0; }, 500);
+                } else {
+                    setTimeout(() => {
+                        speak("Excellent!");
+                        if(!state.currentWordIsDirty) saveStars(1); 
+                        currentSpellingItem = null;
+                        renderSpellingGame(document.getElementById('app-content'), units[state.currentUnitId]);
+                    }, 800);
+                }
+            } else {
+                state.currentWordIsDirty = true;
+                state.spellingStreak = 0; 
+                if (!state.spellingMistakes.includes(currentSpellingItem)) state.spellingMistakes.push(currentSpellingItem);
+                const feedbackEl = document.getElementById('spelling-feedback');
+                feedbackEl.innerText = "Oops! Try again!";
+                feedbackEl.classList.remove('opacity-0');
+                const slotsContainer = document.getElementById('answer-slots');
+                slotsContainer.classList.add('animate-shake');
+                const slots = document.querySelectorAll('.slot-box');
+                slots.forEach(s => s.classList.add('border-red-400', 'text-red-500', 'bg-red-50'));
+                speak("Try again");
+                setTimeout(() => {
+                    slotsContainer.classList.remove('animate-shake');
+                    spellingSlots.forEach(slotItem => { if (slotItem) spellingPool.find(p => p.id === slotItem.id).used = false; });
+                    spellingSlots = spellingSlots.map(() => null);
+                    feedbackEl.classList.add('opacity-0'); 
+                    renderSpellingGame(document.getElementById('app-content'), units[state.currentUnitId]);
+                }, 1000);
+            }
+        }
+
+        // --- Common ---
+        function showVictoryModal() {
+            const modal = document.getElementById('victory-modal');
+            modal.classList.remove('hidden');
+            triggerConfetti();
+            saveStars(10);
+            speak("Congratulations! You did it!");
+        }
+        function closeVictoryModal() {
+            const modal = document.getElementById('victory-modal');
+            modal.classList.add('hidden');
+            currentSpellingItem = null;
+            renderSpellingGame(document.getElementById('app-content'), units[state.currentUnitId]);
+        }
+
+        // Initialize (Phonics Game needs to be defined in scope of unit1 or general?)
+        // The Phonics Sorting game is specific to Unit 1 data structure. 
+        // I kept it simple above but need to define renderPhonicsGame if in unit1 context.
+        // It is defined in global scope above.
+
+        let currentSortWord, currentSortType, currentSortVowel;
+        function renderPhonicsGame(container, unit) {
+            // unit not used directly as data is hardcoded for phonics right now, but good practice
+            const useShortI = Math.random() > 0.5;
+            if (useShortI) { currentSortType = 'short'; currentSortVowel = 'i'; currentSortWord = phonicsData.shortI[Math.floor(Math.random()*phonicsData.shortI.length)]; } 
+            else { currentSortType = 'long'; currentSortVowel = 'o'; currentSortWord = phonicsData.longO[Math.floor(Math.random()*phonicsData.longO.length)]; }
+            setTimeout(() => speak(currentSortWord), 500);
+            const mainColor = currentSortVowel === 'i' ? 'cute-pink' : 'cute-blue';
+            const mainColorHex = currentSortVowel === 'i' ? 'text-cute-pink-dark' : 'text-cute-blue-dark';
+            container.innerHTML = `
+                <div class="h-full flex flex-col items-center pt-4">
+                     <div class="w-full flex justify-between items-center mb-4 px-4"><button onclick="state.currentPhonicsMode='teach'; switchTab('extra')" class="text-gray-400 text-sm"><i class="fa-solid fa-chevron-left"></i> 回教學</button><h2 class="text-xl font-bold text-cute-text">聽音辨位</h2><div class="w-10"></div></div>
+                    <div class="bg-white p-8 rounded-full shadow-card mb-8 w-40 h-40 flex items-center justify-center cursor-pointer animate-float border-4 border-${mainColor}" onclick="speak(currentSortWord)"><h3 class="text-3xl font-bold text-gray-700">${currentSortWord}</h3></div>
+                    <p class="text-gray-500 mb-6 text-center">這個字是 Short <span class="font-bold ${mainColorHex}">${currentSortVowel}</span> 還是 Long <span class="font-bold ${mainColorHex}">${currentSortVowel}</span> 呢？<br><span class="text-xs text-gray-400">(點擊單字可重聽)</span></p>
+                    <div class="grid grid-cols-2 gap-4 w-full px-4">
+                        <button onclick="checkSort('short')" class="h-40 bg-white border-2 border-cute-pink rounded-3xl shadow-sm btn-press flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-pink-50 transition-colors"><span class="text-3xl font-bold text-cute-pink-dark">Short ${currentSortVowel}</span><span class="text-lg">短音</span><div class="mt-2 px-3 py-1 bg-pink-100 rounded-full text-xs font-mono text-pink-600">Short ${currentSortVowel} (˘)</div></button>
+                        <button onclick="checkSort('long')" class="h-40 bg-white border-2 border-cute-blue rounded-3xl shadow-sm btn-press flex flex-col items-center justify-center gap-1 text-gray-600 hover:bg-blue-50 transition-colors"><span class="text-3xl font-bold text-cute-blue-dark">Long ${currentSortVowel}</span><span class="text-lg">長音</span><div class="mt-2 px-3 py-1 bg-blue-100 rounded-full text-xs font-mono text-blue-600">Long ${currentSortVowel} (¯)</div></button>
+                    </div>
+                     <div id="sort-feedback" class="mt-6 text-xl font-bold h-8 text-center"></div>
+                </div>
+            `;
+        }
+        function checkSort(type) {
+            const feedback = document.getElementById('sort-feedback');
+            if (type === currentSortType) {
+                feedback.innerHTML = `<i class="fa-solid fa-check"></i> 答對了！是 ${type === 'short' ? 'Short' : 'Long'} ${currentSortVowel}!`; feedback.className = "mt-6 text-lg font-bold h-auto text-center text-green-500 animate-pop";
+                saveStars(1); speak("Correct!"); setTimeout(() => renderPhonicsGame(document.getElementById('app-content'), units[state.currentUnitId]), 2000);
+            } else {
+                feedback.innerText = "不對喔，再聽一次！"; feedback.className = "mt-6 text-lg font-bold h-auto text-center text-red-500 animate-shake"; speak(currentSortWord);
+            }
+        }
+
+        init();
+
+    </script>
+</body>
+</html>
